@@ -1,5 +1,4 @@
-import * as THREE from 'three';
-import { cityParams, type CityParams } from '../city-params';
+import { cityParams } from '../city-params';
 import type { CityGrid } from '../city-grid.class';
 import { Building } from './building.class';
 import { SetbackTower } from './setback-tower';

@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GUI } from 'lil-gui';
 import { makeBuildings } from './buildings/make-buildings';
-import { PointerLockControls } from 'three/examples/jsm/Addons.js';
 import { cityParams } from './city-params';
 import { CityGrid } from './city-grid.class';
 import { Building } from './buildings/building.class';
