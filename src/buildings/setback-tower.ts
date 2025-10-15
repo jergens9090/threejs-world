@@ -11,9 +11,7 @@ export class SetbackTower extends Building {
 
     private _buildTower(x: number, z: number, numLayers: number, params: CityParams): THREE.Group {
         const group = new THREE.Group();
-
-        console.log("Building Tower")
-        // Generate random relative height proportions for each layer
+        
         let randomHeights = Array.from({ length: numLayers }, () => Math.random());
         const sumHeights = randomHeights.reduce((a, b) => a + b, 0);
         const layerHeights = randomHeights.map(h => (h / sumHeights) * this.baseHeight);

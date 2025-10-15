@@ -2,6 +2,7 @@ import { cityParams } from '../city-params';
 import type { CityGrid } from '../city-grid.class';
 import { Building } from './building.class';
 import { SetbackTower } from './setback-tower';
+import { SpiralTower } from './spiral-tower';
 
 
 const buildings: Building[] = [];
@@ -27,7 +28,12 @@ export function makeBuildings(cityGrid: CityGrid): Building[] {
             if (height > cityParams.maxHeight * 0.7) {
                 layers = Math.floor(Math.random() * 6) + 4;
             }
-            newBuilding = new SetbackTower(x, z, height, layers, cityParams);
+            if (Math.random() > 0.8) {
+                newBuilding = new SpiralTower(x, z, height, cityParams);
+            } else {
+                newBuilding = new SetbackTower(x, z, height, layers, cityParams);
+            }
+
         }
 
 

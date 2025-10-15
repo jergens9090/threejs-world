@@ -6,6 +6,7 @@ import { cityParams } from './city-params';
 import { CityGrid } from './city-grid.class';
 import { Building } from './buildings/building.class';
 import { SetbackTower } from './buildings/setback-tower';
+import { SpiralTower } from './buildings/spiral-tower';
 
 const gui = new GUI();
 
@@ -94,6 +95,22 @@ window.addEventListener('click', (event) => {
 });
 
 
+
+window.addEventListener('mousemove', (event) => {
+	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	raycaster.setFromCamera(mouse, camera);
+	const intersects = raycaster.intersectObjects(scene.children);
+	if (intersects.length > 0) {
+		const obj = intersects[0].object;
+		if (obj.id !== ground.id) {
+			obj.scale.y *= 0.5;
+		}
+	}
+});
+
+
+
 gui.onChange(regenerateCity);
 gui.controllers.forEach(c => c.onFinishChange(regenerateCity));
 
@@ -106,7 +123,7 @@ function animateBuildings() {
 	for (const b of buildings) {
 		// Oscillate smoothly around baseHeight
 
-		if (b instanceof SetbackTower) {
+		if (b instanceof SetbackTower || b instanceof SpiralTower) {
 			const minHeight = b.baseHeight;       // your chosen minimum
 			const maxHeight = b.baseHeight * 1.5;   // or any ratio you like
 			const t = (Math.sin(time * b.speed + b.phase) + 1) / 2;
@@ -115,7 +132,7 @@ function animateBuildings() {
 			// Update scale/position
 			b.mesh.scale.y = newHeight / b.baseHeight;
 			// b.mesh.position.y = newHeight / 2;
-		} else if (b instanceof Building) {
+		} else if (b.constructor === Building) {
 			const minHeight = b.baseHeight;       // your chosen minimum
 			const maxHeight = b.baseHeight * 1.5;   // or any ratio you like
 			// normalize sine from [-1, 1] → [0, 1]
