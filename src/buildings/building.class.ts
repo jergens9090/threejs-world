@@ -44,6 +44,7 @@ export class Building {
 
     constructor(x: number, z: number, height: number) {
         const y = height / 2;
+        this._setColor();
         if (squareCityParams !== null) {
             function randomSize() {
                 const minWidth = Math.min(1, squareCityParams.gridSquareWidth);
@@ -78,7 +79,7 @@ export class Building {
                 phase: Math.random() * Math.PI * 2  // start offset
             }
         }
-        this._setColor();
+
     }
 
     protected _setMeshGroup(group: THREE.Group) {

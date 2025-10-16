@@ -24,7 +24,7 @@ interface ModeParams{
 
 
 export const squareCityParams: SquareCityParams = {
-    buildingCount: 200,
+    buildingCount: 500,
     maxHeight: 90,
     // maxHeightMin: 5,
     // maxHeightMax: 200,
@@ -32,7 +32,7 @@ export const squareCityParams: SquareCityParams = {
     // groundColor: 0x99cc99,
     groundColor: 0xffffff,
     buildingColor: 0xaaaaaa,
-    gridSquareWidth: 4,
+    gridSquareWidth: 6,
     gridDividerWidth: 1,
 };
 
@@ -52,7 +52,6 @@ export const gui = new GUI();
 
 let squareFolder: GUI = gui.addFolder(`Square Mode`);
 squareFolder.addColor(squareCityParams, 'groundColor');
-squareFolder.add(squareCityParams, 'buildingCount', 50, 500, 10).name('Buildings');
 squareFolder.add(squareCityParams, 'maxHeight', 5, 150, 1).name('Max Height');
 squareFolder.add(squareCityParams, 'gridSquareWidth', 2, 12, 1).name('Square Width')
 squareFolder.add(squareCityParams, 'gridDividerWidth', 1, 3, 0.5).name('Divider Width')
@@ -60,7 +59,7 @@ squareFolder.add(squareCityParams, 'gridDividerWidth', 1, 3, 0.5).name('Divider 
 let hexFolder: GUI = gui.addFolder(`Hex Mode`);
 hexFolder.add(hexCityParams, 'maxHeight', 5, 150, 1).name('Max Height');
 hexFolder.add(hexCityParams, 'hexagonRadius', 1, 15, 1).name('Hexagon Radius')
-hexFolder.add(hexCityParams, 'hexagonBuffer', 1, 6, 0.5).name('Buffer Width')
+hexFolder.add(hexCityParams, 'hexagonBuffer', 0.5, 6, 0.5).name('Buffer Width')
 hexFolder.addColor(hexCityParams, 'groundColor');
 
 let modeFolder: GUI = gui.addFolder("Mode Toggle");

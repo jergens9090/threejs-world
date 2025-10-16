@@ -2,13 +2,13 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { makeBuildingHexagonGrid, makeBuildingsSquareGrid } from './buildings/make-buildings';
-import { squareCityParams, gui } from './city-params';
+import { squareCityParams, gui, modeParams } from './city-params';
 import { Building } from './buildings/building.class';
 import { SetbackTower } from './buildings/setback-tower';
 import { SpiralTower } from './buildings/spiral-tower';
-import { SquareCityGrid } from './grids/square-city-grid.class';
 import { HexagonCityGrid } from './grids/hexagon-city-grid.class';
 import { HexagonBuilding } from './buildings/hexagon-building.class';
+import { SquareCityGrid } from './grids/square-city-grid.class';
 
 
 
@@ -64,20 +64,31 @@ const ground = new THREE.Mesh(
 );
 ground.rotation.x = -Math.PI / 2;
 
-// let cityGridSquares = new SquareCityGrid(cityParams);
+
+let cityGridSquares = new SquareCityGrid();
 let cityGridHexagons = new HexagonCityGrid();
 
-// let buildings = makeBuildingsSquareGrid(cityGridSquares);
+
+let squareBuildings = makeBuildingsSquareGrid(cityGridSquares);
 let hexagonBuildings = makeBuildingHexagonGrid(cityGridHexagons);
 function regenerateCity() {
 	// Remove old buildings
 	scene.children = scene.children.filter(obj => !(obj instanceof THREE.Mesh) && !(obj instanceof THREE.Group));
-	// cityGridSquares = new SquareCityGrid(cityParams);
-	cityGridHexagons = new HexagonCityGrid();
-	// buildings = makeBuildingsSquareGrid(cityGridSquares);
-	hexagonBuildings = makeBuildingHexagonGrid(cityGridHexagons);
-	hexagonBuildings.forEach(building => scene.add(building.mesh));
+	// scene.children = [];
+	console.log("Scene children", scene.children)
+	if (modeParams.mode === 'Hexagon') {
+
+		cityGridHexagons = new HexagonCityGrid();
+		hexagonBuildings = makeBuildingHexagonGrid(cityGridHexagons);
+		hexagonBuildings.forEach(building => scene.add(building.mesh));
+	} else if (modeParams.mode === 'Square') {
+		cityGridSquares = new SquareCityGrid();
+		squareBuildings = makeBuildingsSquareGrid(cityGridSquares);
+		squareBuildings.forEach(building => scene.add(building.mesh));
+
+	}
 	scene.add(ground);
+
 }
 
 // Change building color on click
@@ -85,36 +96,10 @@ function regenerateCity() {
 
 function addMouseClickListener() {
 
-	window.addEventListener('click', (event) => {
-		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-		raycaster.setFromCamera(mouse, camera);
-		const intersects = raycaster.intersectObjects(scene.children);
-		if (intersects.length > 0) {
-			const obj = intersects[0].object;
-			const randomColor = Math.random() * 0xffffff;
-			if (obj instanceof THREE.Mesh && obj.id !== ground.id) {
-				(obj.material as THREE.MeshStandardMaterial).color.set(randomColor);
-			}
 
-		}
-	});
 }
 
 function addMouseMoveListener() {
-	// window.addEventListener('mousemove', (event) => {
-	// 	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-	// 	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-	// 	raycaster.setFromCamera(mouse, camera);
-	// 	const intersects = raycaster.intersectObjects(scene.children);
-	// 	if (intersects.length > 0) {
-	// 		const obj = intersects[0].object;
-	// 		if (obj.id !== ground.id) {
-	// 			obj.scale.y *= 0.5;
-	// 		}
-	// 	}
-	// });
-
 	window.addEventListener('mousemove', (event) => {
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -141,7 +126,7 @@ const clock = new THREE.Clock();
 function animateBuildings() {
 	const time = clock.getElapsedTime();
 
-	for (const b of hexagonBuildings) {
+	for (const b of [...squareBuildings, ...hexagonBuildings]) {
 		// Oscillate smoothly around baseHeight
 
 		if (b instanceof SetbackTower || b instanceof SpiralTower) {
@@ -188,7 +173,7 @@ function animate() {
 
 
 	animateBuildings();
-	// rotateCamera();
+	rotateCamera();
 
 
 
