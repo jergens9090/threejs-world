@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import type { CityParams } from "../city-params";
+import { squareCityParams } from "../city-params";
+import { hexCityParams } from "../city-params";
 
 
 export interface BuildingData {
@@ -41,47 +42,49 @@ export class Building {
         this._color = randomColor;
     }
 
-    constructor(x: number, z: number, height: number, params: CityParams) {
-        this._setColor();
-
+    constructor(x: number, z: number, height: number) {
         const y = height / 2;
-
-        function randomSize() {
-            const minWidth = Math.min(1, params.gridSquareWidth);
-            const maxWidth = params.gridSquareWidth;
-            const randomSize = minWidth + (Math.random() * maxWidth - minWidth);
-            return randomSize;
+        if (squareCityParams !== null) {
+            function randomSize() {
+                const minWidth = Math.min(1, squareCityParams.gridSquareWidth);
+                const maxWidth = squareCityParams.gridSquareWidth;
+                const randomSize = minWidth + (Math.random() * maxWidth - minWidth);
+                return randomSize;
+            }
+            const randomWidth = randomSize();
+            const randomLength = randomSize();
+            const squareBuildingMesh = new THREE.Mesh(
+                new THREE.BoxGeometry(randomWidth, height, randomLength),
+                new THREE.MeshStandardMaterial({ color: this.color })
+            );
+            squareBuildingMesh.position.set(x, y, z);
+            this._buildingData = {
+                mesh: squareBuildingMesh,
+                baseHeight: height,
+                amplitude: 10 + Math.random() * 10, // how much it oscillates
+                speed: 0.1 + Math.random() * 1.5,   // how fast
+                phase: Math.random() * Math.PI * 2  // start offset
+            }
+        } else {
+            const hexBuildingMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(hexCityParams.hexagonRadius, hexCityParams.hexagonRadius, height, 6),
+                new THREE.MeshStandardMaterial({ color: this.color })
+            );
+            this._buildingData = {
+                mesh: hexBuildingMesh,
+                baseHeight: height,
+                amplitude: 10 + Math.random() * 10, // how much it oscillates
+                speed: 0.1 + Math.random() * 1.5,   // how fast
+                phase: Math.random() * Math.PI * 2  // start offset
+            }
         }
-
-        // const minWidth = Math.min(1, params.gridSquareWidth);
-        // const maxWidth = params.gridSquareWidth;
-        // const randomWidth = minWidth + Math.random() * (maxWidth - minWidth);
-
-        const randomWidth = randomSize();
-        const randomLength = randomSize();
-
-
-
-
-
-
-        const buildingMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(randomWidth, height, randomLength),
-            new THREE.MeshStandardMaterial({ color: this.color })
-        );
-
-        buildingMesh.position.set(x, y, z);
-
-        this._buildingData = {
-            mesh: buildingMesh,
-            baseHeight: height,
-            amplitude: 10 + Math.random() * 10, // how much it oscillates
-            speed: 0.1 + Math.random() * 1.5,   // how fast
-            phase: Math.random() * Math.PI * 2  // start offset
-        }
+        this._setColor();
     }
 
     protected _setMeshGroup(group: THREE.Group) {
         this._buildingData.mesh = group;
+    }
+    protected _setMesh(mesh: THREE.Mesh) {
+        this._buildingData.mesh = mesh;
     }
 }

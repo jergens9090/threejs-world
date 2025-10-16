@@ -1,15 +1,15 @@
-import * as THREE from 'three';
-import type { CityParams } from "../city-params";
+import * as THREE from 'three'
 import { Building } from "./building.class";
+import { squareCityParams } from '../city-params';
 
 export class SetbackTower extends Building {
-    constructor(x: number, z: number, height: number, layers: number, params: CityParams) {
-        super(x, z, height, params);
-        const meshGroup: THREE.Group = this._buildTower(x, z, layers, params);
+    constructor(x: number, z: number, height: number, layers: number) {
+        super(x, z, height);
+        const meshGroup: THREE.Group = this._buildTower(x, z, layers);
         this._setMeshGroup(meshGroup);
     }
 
-    private _buildTower(x: number, z: number, numLayers: number, params: CityParams): THREE.Group {
+    private _buildTower(x: number, z: number, numLayers: number): THREE.Group {
         const group = new THREE.Group();
         
         let randomHeights = Array.from({ length: numLayers }, () => Math.random());
@@ -18,8 +18,8 @@ export class SetbackTower extends Building {
         let currentY = 0;
 
         function randomSize() {
-            const minWidth = Math.min(1, params.gridSquareWidth);
-            const maxWidth = params.gridSquareWidth;
+            const minWidth = Math.min(1, squareCityParams.gridSquareWidth);
+            const maxWidth = squareCityParams.gridSquareWidth;
             const randomSize = minWidth + Math.random() * (maxWidth - minWidth);
             return randomSize;
         }

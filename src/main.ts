@@ -1,14 +1,16 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GUI } from 'lil-gui';
-import { makeBuildings } from './buildings/make-buildings';
-import { cityParams } from './city-params';
-import { CityGrid } from './city-grid.class';
+
+import { makeBuildingHexagonGrid, makeBuildingsSquareGrid } from './buildings/make-buildings';
+import { squareCityParams, gui } from './city-params';
 import { Building } from './buildings/building.class';
 import { SetbackTower } from './buildings/setback-tower';
 import { SpiralTower } from './buildings/spiral-tower';
+import { SquareCityGrid } from './grids/square-city-grid.class';
+import { HexagonCityGrid } from './grids/hexagon-city-grid.class';
+import { HexagonBuilding } from './buildings/hexagon-building.class';
 
-const gui = new GUI();
+
 
 // Scene
 const scene = new THREE.Scene();
@@ -55,60 +57,79 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 
-gui.add(cityParams, 'buildingCount', 50, 500, 10).name('Buildings');
-gui.add(cityParams, 'maxHeight', 5, 50, 1).name('Max Height');
-gui.add(cityParams, 'gridSquareWidth', 2, 12, 1).name('Square Width')
-gui.add(cityParams, 'gridDividerWidth', 1, 3, 0.5).name('Divider Width')
 
 const ground = new THREE.Mesh(
-	new THREE.PlaneGeometry(cityParams.groundSize, cityParams.groundSize),
-	new THREE.MeshStandardMaterial({ color: cityParams.groundColor })
+	new THREE.PlaneGeometry(squareCityParams.groundSize, squareCityParams.groundSize),
+	new THREE.MeshStandardMaterial({ color: squareCityParams.groundColor })
 );
 ground.rotation.x = -Math.PI / 2;
 
-let cityGrid = new CityGrid(cityParams);
+// let cityGridSquares = new SquareCityGrid(cityParams);
+let cityGridHexagons = new HexagonCityGrid();
 
-let buildings = makeBuildings(cityGrid);
+// let buildings = makeBuildingsSquareGrid(cityGridSquares);
+let hexagonBuildings = makeBuildingHexagonGrid(cityGridHexagons);
 function regenerateCity() {
 	// Remove old buildings
 	scene.children = scene.children.filter(obj => !(obj instanceof THREE.Mesh) && !(obj instanceof THREE.Group));
-	cityGrid = new CityGrid(cityParams);
-	buildings = makeBuildings(cityGrid);
-	buildings.forEach(building => scene.add(building.mesh));
+	// cityGridSquares = new SquareCityGrid(cityParams);
+	cityGridHexagons = new HexagonCityGrid();
+	// buildings = makeBuildingsSquareGrid(cityGridSquares);
+	hexagonBuildings = makeBuildingHexagonGrid(cityGridHexagons);
+	hexagonBuildings.forEach(building => scene.add(building.mesh));
 	scene.add(ground);
 }
 
 // Change building color on click
-window.addEventListener('click', (event) => {
-	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-	raycaster.setFromCamera(mouse, camera);
-	const intersects = raycaster.intersectObjects(scene.children);
-	if (intersects.length > 0) {
-		const obj = intersects[0].object;
-		const randomColor = Math.random() * 0xffffff;
-		if (obj instanceof THREE.Mesh && obj.id !== ground.id) {
-			(obj.material as THREE.MeshStandardMaterial).color.set(randomColor);
+
+
+function addMouseClickListener() {
+
+	window.addEventListener('click', (event) => {
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+		raycaster.setFromCamera(mouse, camera);
+		const intersects = raycaster.intersectObjects(scene.children);
+		if (intersects.length > 0) {
+			const obj = intersects[0].object;
+			const randomColor = Math.random() * 0xffffff;
+			if (obj instanceof THREE.Mesh && obj.id !== ground.id) {
+				(obj.material as THREE.MeshStandardMaterial).color.set(randomColor);
+			}
+
 		}
+	});
+}
 
-	}
-});
+function addMouseMoveListener() {
+	// window.addEventListener('mousemove', (event) => {
+	// 	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+	// 	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	// 	raycaster.setFromCamera(mouse, camera);
+	// 	const intersects = raycaster.intersectObjects(scene.children);
+	// 	if (intersects.length > 0) {
+	// 		const obj = intersects[0].object;
+	// 		if (obj.id !== ground.id) {
+	// 			obj.scale.y *= 0.5;
+	// 		}
+	// 	}
+	// });
 
+	window.addEventListener('mousemove', (event) => {
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+		raycaster.setFromCamera(mouse, camera);
+		const intersects = raycaster.intersectObjects(scene.children);
+		if (intersects.length > 0) {
+			const obj = intersects[0].object;
+			const randomColor = Math.random() * 0xffffff;
+			if (obj instanceof THREE.Mesh && obj.id !== ground.id) {
+				(obj.material as THREE.MeshStandardMaterial).color.set(randomColor);
+			}
 
-
-window.addEventListener('mousemove', (event) => {
-	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-	raycaster.setFromCamera(mouse, camera);
-	const intersects = raycaster.intersectObjects(scene.children);
-	if (intersects.length > 0) {
-		const obj = intersects[0].object;
-		if (obj.id !== ground.id) {
-			obj.scale.y *= 0.5;
 		}
-	}
-});
-
+	});
+}
 
 
 gui.onChange(regenerateCity);
@@ -120,7 +141,7 @@ const clock = new THREE.Clock();
 function animateBuildings() {
 	const time = clock.getElapsedTime();
 
-	for (const b of buildings) {
+	for (const b of hexagonBuildings) {
 		// Oscillate smoothly around baseHeight
 
 		if (b instanceof SetbackTower || b instanceof SpiralTower) {
@@ -132,7 +153,7 @@ function animateBuildings() {
 			// Update scale/position
 			b.mesh.scale.y = newHeight / b.baseHeight;
 			// b.mesh.position.y = newHeight / 2;
-		} else if (b.constructor === Building) {
+		} else if (b.constructor === Building || b instanceof HexagonBuilding) {
 			const minHeight = b.baseHeight;       // your chosen minimum
 			const maxHeight = b.baseHeight * 1.5;   // or any ratio you like
 			// normalize sine from [-1, 1] → [0, 1]
@@ -159,13 +180,18 @@ function rotateCamera() {
 
 }
 
+addMouseClickListener();
+addMouseMoveListener();
 
 function animate() {
 	requestAnimationFrame(animate);
 
 
 	animateBuildings();
-	rotateCamera();
+	// rotateCamera();
+
+
+
 	// --- WASD Movement relative to camera view ---
 	camera.getWorldDirection(forward);
 	forward.y = 0;

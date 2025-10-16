@@ -1,15 +1,15 @@
 import * as THREE from 'three';
-import type { CityParams } from "../city-params";
 import { Building } from "./building.class";
+import { squareCityParams } from '../city-params';
 
 export class SpiralTower extends Building {
-    constructor(x: number, z: number, height: number, params: CityParams) {
-        super(x, z, height, params);
-        const meshGroup: THREE.Group = this._buildTower(x, z, params);
+    constructor(x: number, z: number, height: number) {
+        super(x, z, height);
+        const meshGroup: THREE.Group = this._buildTower(x, z);
         this._setMeshGroup(meshGroup);
     }
 
-    private _buildTower(x: number, z: number, params: CityParams): THREE.Group {
+    private _buildTower(x: number, z: number): THREE.Group {
         const group = new THREE.Group();
         const numLayers = 10 + Math.floor(Math.random() * 50);
         const layerHeight = this.baseHeight / numLayers;
@@ -19,8 +19,8 @@ export class SpiralTower extends Building {
         let currentY = 0;
 
         function randomSize() {
-            const minWidth = Math.min(1, params.gridSquareWidth);
-            const maxWidth = params.gridSquareWidth;
+            const minWidth = Math.min(1, squareCityParams.gridSquareWidth);
+            const maxWidth = squareCityParams.gridSquareWidth;
             const randomSize = minWidth + Math.random() * (maxWidth - minWidth);
             return randomSize;
         }
