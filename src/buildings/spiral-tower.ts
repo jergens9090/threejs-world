@@ -9,6 +9,16 @@ export class SpiralTower extends Building {
         this._setMeshGroup(meshGroup);
     }
 
+    public oscillateElevation(time: number): void {
+        const minHeight = this.baseHeight;       // your chosen minimum
+        const maxHeight = this.baseHeight * 1.5;   // or any ratio you like
+        const t = (Math.sin(time * this.speed + this.phase) + 1) / 2;
+        const newHeight = minHeight + (maxHeight - minHeight) * t;
+        // Update scale/position
+        this.mesh.scale.y = newHeight / this.baseHeight;
+    }
+
+
     private _buildTower(x: number, z: number): THREE.Group {
         const group = new THREE.Group();
         const numLayers = 10 + Math.floor(Math.random() * 50);

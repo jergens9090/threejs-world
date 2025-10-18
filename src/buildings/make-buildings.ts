@@ -5,6 +5,7 @@ import { Building } from './building.class';
 import { HexagonBuilding } from './hexagon-building.class';
 import { SetbackTower } from './setback-tower';
 import { SpiralTower } from './spiral-tower';
+import { SquareBuilding } from './square-building';
 
 
 const buildings: Building[] = [];
@@ -14,14 +15,12 @@ export function makeBuildingsSquareGrid(cityGrid: SquareCityGrid): Building[] {
     for (let i = 0; i < cityGrid.gridItems.length; i++) {
         const x = cityGrid.gridItems[i].x;
         const z = cityGrid.gridItems[i].z;
-
         const maxDistance = squareCityParams.groundSize / 2;
         const distance = Math.sqrt(x * x + z * z);
-        const falloff = Math.pow(1 - distance / maxDistance, 2)
-        const height = Math.max(1, falloff * squareCityParams.maxHeight + Math.random() * 2);
-
-        let newBuilding: Building = new Building(x, z, height);
-
+        const falloff = Math.max(0, 1 - distance / maxDistance);
+        const height = Math.max(1, Math.pow(falloff, 2) * hexCityParams.maxHeight * 2);
+        
+        let newBuilding: Building = new SquareBuilding(x, z, height);
         if (height > squareCityParams.maxHeight * 0.2) {
             let layers = Math.floor(Math.random() * 2) + 2;
             if (height > squareCityParams.maxHeight * 0.5) {
@@ -35,16 +34,13 @@ export function makeBuildingsSquareGrid(cityGrid: SquareCityGrid): Building[] {
             } else {
                 newBuilding = new SetbackTower(x, z, height, layers);
             }
-
         }
-
-
-
-
         buildings.push(newBuilding)
     }
     return buildings;
 }
+
+
 
 
 const hexagonBuildings: HexagonBuilding[] = [];
@@ -54,12 +50,10 @@ export function makeBuildingHexagonGrid(cityGrid: HexagonCityGrid): Building[] {
     for (let i = 0; i < cityGrid.gridItems.length; i++) {
         const x = cityGrid.gridItems[i].x;
         const z = cityGrid.gridItems[i].z;
-
         const maxDistance = hexCityParams.groundSize / 2;
         const distance = Math.sqrt(x * x + z * z);
-        const falloff = Math.pow(1 - distance / maxDistance, 2)
-        const height = Math.max(1, falloff * hexCityParams.maxHeight + Math.random() * 2);
-
+        const falloff = Math.max(0, 1 - distance / maxDistance);
+        const height = Math.max(1, Math.pow(falloff, 2) * hexCityParams.maxHeight * 2);
         let newHexBuilding: HexagonBuilding = new HexagonBuilding(x, z, height);
         hexagonBuildings.push(newHexBuilding)
     }

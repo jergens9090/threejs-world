@@ -1,0 +1,34 @@
+
+## 
+Elevated train lines
+
+##
+Night time, lights on at various rates
+-- A thing where it alternates night and day.  
+-- You can control the speed of this alternating
+
+
+### 
+PUZZLES
+
+##
+Power Grid Puzzle
+-- Maybe there’s a power grid.  
+-- various chunks of the city are connected to various components of the grid.  
+-- The objective might be maximal power uptime 
+-- Fix the problem by rerouting power, repairing broken components
+
+
+##
+Complicated interconnected machine puzzle
+-- press buttons and pull levers and stuff to activate piece after piece to get to the end.
+-- Kind of like a complex shrine in Zelda (TOTK, BOTW)
+
+##
+Color-matching / color-alignment puzzle
+-- series of grid items eg circles or hexagons.
+-- User moves cursor over them and they semi randomly change color.
+-- User must create a specific pattern among the colored dots to make a pattern that completes the puzzle.  
+--- Eg all red could be one solution.  Or all green.
+--- Or a user completes other tasks and that activated a colored dot and they flip from red to green for example
+

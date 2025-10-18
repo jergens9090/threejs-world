@@ -23,4 +23,14 @@ export class HexagonBuilding extends Building {
         hexPlate.rotation.y = Math.PI / 2;
         return hexPlate;
     }
+
+    public oscillateElevation(time: number): void {
+        const minHeight = this.baseHeight;       // your chosen minimum
+        const maxHeight = this.baseHeight * 1.5;   // or any ratio you like
+        const t = (Math.sin(time * this.speed + this.phase) + 1) / 2;
+        const newHeight = minHeight + (maxHeight - minHeight) * t;
+        // Update scale/position
+        this.mesh.scale.y = newHeight / this.baseHeight;
+        this.mesh.position.y = newHeight / 2;
+    }
 }

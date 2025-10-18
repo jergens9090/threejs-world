@@ -9,9 +9,18 @@ export class SetbackTower extends Building {
         this._setMeshGroup(meshGroup);
     }
 
+    public oscillateElevation(time: number): void {
+        const minHeight = this.baseHeight;       // your chosen minimum
+        const maxHeight = this.baseHeight * 1.5;   // or any ratio you like
+        const t = (Math.sin(time * this.speed + this.phase) + 1) / 2;
+        const newHeight = minHeight + (maxHeight - minHeight) * t;
+        // Update scale/position
+        this.mesh.scale.y = newHeight / this.baseHeight;
+    }
+
     private _buildTower(x: number, z: number, numLayers: number): THREE.Group {
         const group = new THREE.Group();
-        
+
         let randomHeights = Array.from({ length: numLayers }, () => Math.random());
         const sumHeights = randomHeights.reduce((a, b) => a + b, 0);
         const layerHeights = randomHeights.map(h => (h / sumHeights) * this.baseHeight);
@@ -48,4 +57,5 @@ export class SetbackTower extends Building {
 
         return group;
     }
+
 }

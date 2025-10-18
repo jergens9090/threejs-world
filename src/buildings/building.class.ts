@@ -11,11 +11,12 @@ export interface BuildingData {
     phase: number;
 }
 
-export class Building {
+export abstract class Building {
 
 
     private _buildingData: BuildingData;
     private _color: string = "0x000000";
+    private _isActivated: boolean = false;
 
     public get color(): string { return this._color; }
     public get buildingData(): BuildingData { return this._buildingData; }
@@ -24,6 +25,39 @@ export class Building {
     public get amplitude(): number { return this.buildingData.amplitude; }
     public get speed(): number { return this.buildingData.speed; }
     public get phase(): number { return this.buildingData.phase; }
+    public get isActivated(): boolean { return this._isActivated; }
+
+
+    abstract oscillateElevation(time: number): void;
+
+
+    updateElevationCenter(elevationCenter: { x: number, z: number }) {
+        const newX = elevationCenter.x;
+        const newZ = elevationCenter.z;
+        const maxDistance = squareCityParams.groundSize / 2;
+        const dx = newX - this.mesh.position.x;
+        const dz = newZ - this.mesh.position.z
+        const distance = Math.sqrt(dx * dx + dz * dz);
+        const falloff = Math.max(0, 1 - distance / maxDistance);
+        const height = Math.max(1, Math.pow(falloff, 2) *  hexCityParams.maxHeight * 2);
+        this._buildingData.mesh.scale.y = height / this.baseHeight;
+        this._buildingData.mesh.position.y = height / 2;
+    }
+
+    public activate(time: number) {
+        this._isActivated = !this._isActivated;
+        const minHeight = this.baseHeight;       // your chosen minimum
+        const maxHeight = this.baseHeight * 1.5;   // or any ratio you like
+        // normalize sine from [-1, 1] → [0, 1]
+        const t = (Math.sin(time * this.speed + this.phase) + 1) / 2;
+        const newHeight = minHeight + (maxHeight - minHeight) * t;
+
+        // Update scale/position
+        this.mesh.scale.y = newHeight / this.baseHeight;
+        this.mesh.position.y = newHeight / 2;
+    }
+
+
 
     private _setColor() {
         const rainbowColors = [
@@ -82,10 +116,19 @@ export class Building {
 
     }
 
+
+
     protected _setMeshGroup(group: THREE.Group) {
         this._buildingData.mesh = group;
     }
     protected _setMesh(mesh: THREE.Mesh) {
         this._buildingData.mesh = mesh;
+
     }
+    // protected _setHeight(height: number) {
+    //     this._buildingData.baseHeight = height;
+    //     this._buildingData.mesh.scale.y = height;
+    // }
+
+
 }

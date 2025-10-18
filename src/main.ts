@@ -3,12 +3,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import { makeBuildingHexagonGrid, makeBuildingsSquareGrid } from './buildings/make-buildings';
 import { squareCityParams, gui, modeParams } from './city-params';
-import { Building } from './buildings/building.class';
-import { SetbackTower } from './buildings/setback-tower';
-import { SpiralTower } from './buildings/spiral-tower';
 import { HexagonCityGrid } from './grids/hexagon-city-grid.class';
-import { HexagonBuilding } from './buildings/hexagon-building.class';
 import { SquareCityGrid } from './grids/square-city-grid.class';
+import { animateBuildingsElevationOscillation, setSpecificTarget, updateBuildingsMovingTargetOscillation } from './buildings/animate-buildings';
 
 
 
@@ -56,8 +53,6 @@ window.addEventListener('resize', () => {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-
-
 const ground = new THREE.Mesh(
 	new THREE.PlaneGeometry(squareCityParams.groundSize, squareCityParams.groundSize),
 	new THREE.MeshStandardMaterial({ color: squareCityParams.groundColor })
@@ -74,10 +69,7 @@ let hexagonBuildings = makeBuildingHexagonGrid(cityGridHexagons);
 function regenerateCity() {
 	// Remove old buildings
 	scene.children = scene.children.filter(obj => !(obj instanceof THREE.Mesh) && !(obj instanceof THREE.Group));
-	// scene.children = [];
-	console.log("Scene children", scene.children)
 	if (modeParams.mode === 'Hexagon') {
-
 		cityGridHexagons = new HexagonCityGrid();
 		hexagonBuildings = makeBuildingHexagonGrid(cityGridHexagons);
 		hexagonBuildings.forEach(building => scene.add(building.mesh));
@@ -88,18 +80,14 @@ function regenerateCity() {
 
 	}
 	scene.add(ground);
-
 }
-
-// Change building color on click
 
 
 function addMouseClickListener() {
-
-
 }
 
 function addMouseMoveListener() {
+	// change color on mousemove
 	window.addEventListener('mousemove', (event) => {
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -107,74 +95,47 @@ function addMouseMoveListener() {
 		const intersects = raycaster.intersectObjects(scene.children);
 		if (intersects.length > 0) {
 			const obj = intersects[0].object;
-			const randomColor = Math.random() * 0xffffff;
-			if (obj instanceof THREE.Mesh && obj.id !== ground.id) {
-				(obj.material as THREE.MeshStandardMaterial).color.set(randomColor);
-			}
+			/** Change object to random color */
+			// const randomColor = Math.random() * 0xffffff;
+			// if (obj instanceof THREE.Mesh && obj.id !== ground.id) {
+			// 	(obj.material as THREE.MeshStandardMaterial).color.set(randomColor);
+			// }
 
+			/** Change specific target */
+			setSpecificTarget(new THREE.Vector3(obj.position.x, 0, obj.position.z));
+		} else {
+			setSpecificTarget(null);
 		}
 	});
 }
+
 
 
 gui.onChange(regenerateCity);
 gui.controllers.forEach(c => c.onFinishChange(regenerateCity));
 
 regenerateCity();
-const clock = new THREE.Clock();
 
-function animateBuildings() {
-	const time = clock.getElapsedTime();
-
-	for (const b of [...squareBuildings, ...hexagonBuildings]) {
-		// Oscillate smoothly around baseHeight
-
-		if (b instanceof SetbackTower || b instanceof SpiralTower) {
-			const minHeight = b.baseHeight;       // your chosen minimum
-			const maxHeight = b.baseHeight * 1.5;   // or any ratio you like
-			const t = (Math.sin(time * b.speed + b.phase) + 1) / 2;
-			const newHeight = minHeight + (maxHeight - minHeight) * t;
-
-			// Update scale/position
-			b.mesh.scale.y = newHeight / b.baseHeight;
-			// b.mesh.position.y = newHeight / 2;
-		} else if (b.constructor === Building || b instanceof HexagonBuilding) {
-			const minHeight = b.baseHeight;       // your chosen minimum
-			const maxHeight = b.baseHeight * 1.5;   // or any ratio you like
-			// normalize sine from [-1, 1] → [0, 1]
-			const t = (Math.sin(time * b.speed + b.phase) + 1) / 2;
-			const newHeight = minHeight + (maxHeight - minHeight) * t;
-
-			// Update scale/position
-			b.mesh.scale.y = newHeight / b.baseHeight;
-			b.mesh.position.y = newHeight / 2;
-		}
-
-
-	}
-}
 
 let angle = 0; // initial rotation angle
 function rotateCamera() {
 	const radius = 150; // distance from the center
 	angle += 0.002;     // rotation speed (smaller = slower)
-
 	camera.position.x = Math.cos(angle) * radius;
 	camera.position.z = Math.sin(angle) * radius;
 	camera.lookAt(0, 0, 0); // look toward the middle / height of your buildings
-
 }
 
 addMouseClickListener();
 addMouseMoveListener();
 
+
+const clock = new THREE.Clock();
 function animate() {
 	requestAnimationFrame(animate);
-
-
-	animateBuildings();
+	updateBuildingsMovingTargetOscillation([...squareBuildings, ...hexagonBuildings]);
+	// animateBuildingsElevationOscillation([...squareBuildings, ...hexagonBuildings], clock);
 	rotateCamera();
-
 
 
 	// --- WASD Movement relative to camera view ---

@@ -37,11 +37,11 @@ export const squareCityParams: SquareCityParams = {
 };
 
 export const hexCityParams: HexagonCityParams = {
-    maxHeight: 80,
+    maxHeight: 44,
     groundSize: 300,
     groundColor: 0xffffff,
-    hexagonRadius: 8,
-    hexagonBuffer: 2,
+    hexagonRadius: 3,
+    hexagonBuffer: 1,
 }
 
 export const modeParams: ModeParams = {
@@ -57,7 +57,7 @@ squareFolder.add(squareCityParams, 'gridSquareWidth', 2, 12, 1).name('Square Wid
 squareFolder.add(squareCityParams, 'gridDividerWidth', 1, 3, 0.5).name('Divider Width')
 
 let hexFolder: GUI = gui.addFolder(`Hex Mode`);
-hexFolder.add(hexCityParams, 'maxHeight', 5, 150, 1).name('Max Height');
+hexFolder.add(hexCityParams, 'maxHeight', 5, 60, 1).name('Max Height');
 hexFolder.add(hexCityParams, 'hexagonRadius', 1, 15, 1).name('Hexagon Radius')
 hexFolder.add(hexCityParams, 'hexagonBuffer', 0.5, 6, 0.5).name('Buffer Width')
 hexFolder.addColor(hexCityParams, 'groundColor');
